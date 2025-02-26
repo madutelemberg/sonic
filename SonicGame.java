@@ -57,7 +57,6 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
         if (backgroundImage != null) {
             g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null); // Redimensiona a imagem para caber na tela
         } else {
-            // Se a imagem de fundo não carregar, use uma cor de fundo
             g.setColor(Color.CYAN);
             g.fillRect(0, 0, getWidth(), getHeight());
         }
@@ -80,7 +79,6 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
         if (sonicImage != null) {
             g.drawImage(sonicImage, x, y, 40, 40, null); // Ajuste o tamanho da imagem (40x40)
         } else {
-            // Se a imagem não carregar, desenhe um retângulo azul como fallback
             g.setColor(Color.BLUE);
             g.fillRect(x, y, 40, 40);
         }
