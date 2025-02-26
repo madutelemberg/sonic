@@ -16,14 +16,20 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
     private final int jumpStrength = -15;
     private Image sonicImage; // Imagem do Sonic
     private Image backgroundImage; // Imagem de fundo
+    private Image groundImage; // Imagem da base
+    private Image obstacleImage; // Imagem dos obstáculos
+    private Image lifeImage; // Imagem da vida
     private boolean gameOver = false; // Controle de fim de jogo
     private final int finishLine = 750; // Linha de chegada
+    private int score = 0; // Pontuação
+    private int time = 0; // Tempo
+    private int life = 3; // Vida do personagem
 
-    // Obstáculos (retângulos)
+    // Obstáculos (posições x, y)
     private final int[][] obstacles = {
-        {200, 320, 50, 20}, // {x, y, largura, altura}
-        {400, 320, 50, 20},
-        {600, 320, 50, 20}
+        {300, 320}, // {x, y}
+        {600, 320},
+        {900, 320}
     };
 
     public SonicGame() {
@@ -32,20 +38,16 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
         addKeyListener(this);
         setFocusable(true);
 
-        // Carregar a imagem do Sonic
+        // Carregar as imagens
         try {
-            sonicImage = ImageIO.read(new File("sonic.png")); // Substitua pelo caminho da sua imagem
+            sonicImage = ImageIO.read(new File("sonic.png")); // Imagem do Sonic
+            backgroundImage = ImageIO.read(new File("map2.jpg")); // Imagem de fundo
+            groundImage = ImageIO.read(new File("chao.png")); // Imagem da base
+            obstacleImage = ImageIO.read(new File("bug3.png")); // Imagem dos obstáculos
+            lifeImage = ImageIO.read(new File("vida.png")); // Imagem da vida
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Erro ao carregar a imagem do Sonic. Certifique-se de que o arquivo 'sonic.png' está no diretório correto.");
-        }
-
-        // Carregar a imagem de fundo
-        try {
-            backgroundImage = ImageIO.read(new File("map.jpg")); // Substitua pelo caminho da sua imagem de fundo
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Erro ao carregar a imagem de fundo. Certifique-se de que o arquivo 'background.jpg' está no diretório correto.");
+            
         }
     }
 
@@ -55,33 +57,56 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
 
         // Desenhar a imagem de fundo
         if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null); // Redimensiona a imagem para caber na tela
+            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
         } else {
             g.setColor(Color.CYAN);
             g.fillRect(0, 0, getWidth(), getHeight());
         }
 
-        // Desenhar o chão
-        g.setColor(Color.GREEN);
-        g.fillRect(0, 340, 800, 60);
+        // Desenhar a base
+        if (groundImage != null) {
+            g.drawImage(groundImage, 0, 340, getWidth(), 60, null);
+        } else {
+            g.setColor(Color.GREEN);
+            g.fillRect(0, 340, getWidth(), 60);
+        }
 
         // Desenhar os obstáculos
-        g.setColor(Color.RED);
-        for (int[] obstacle : obstacles) {
-            g.fillRect(obstacle[0], obstacle[1], obstacle[2], obstacle[3]);
+        if (obstacleImage != null) {
+            for (int[] obstacle : obstacles) {
+                g.drawImage(obstacleImage, obstacle[0], obstacle[1], 50, 50, null);
+            }
+        } else {
+            g.setColor(Color.RED);
+            for (int[] obstacle : obstacles) {
+                g.fillRect(obstacle[0], obstacle[1], 50, 50);
+            }
         }
 
         // Desenhar a linha de chegada
         g.setColor(Color.YELLOW);
         g.fillRect(finishLine, 300, 10, 40);
 
-        // Desenhar a imagem do Sonic
+        // Desenhar o personagem
         if (sonicImage != null) {
-            g.drawImage(sonicImage, x, y, 40, 40, null); // Ajuste o tamanho da imagem (40x40)
+            g.drawImage(sonicImage, x, y, 40, 40, null);
         } else {
             g.setColor(Color.BLUE);
             g.fillRect(x, y, 40, 40);
         }
+
+        // Desenhar tempo e pontos no canto superior esquerdo
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 20));
+        g.drawString("Tempo: " + time, 10, 60);
+        g.drawString("Pontos: " + score, 10, 50);
+
+        // Desenhar a vida no canto superior direito
+        if (lifeImage != null) {
+            g.drawImage(lifeImage, 700, 10, 30, 30, null);
+        }
+        g.setColor(Color.RED);
+        g.fillRect(740, 10, life * 20, 20); // Barra de vida
 
         // Verificar se o jogo acabou
         if (gameOver) {
@@ -125,9 +150,9 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
 
             // Verificar se o personagem saiu da tela e fazê-lo retornar pelo outro lado
             if (x > getWidth()) {
-                x = -40; // Retorna pela esquerda
+                x = -40;
             } else if (x < -40) {
-                x = getWidth(); // Retorna pela direita
+                x = getWidth();
             }
 
             // Aplicar gravidade
@@ -141,9 +166,12 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
 
             // Verificar colisão com obstáculos
             for (int[] obstacle : obstacles) {
-                if (x + 40 > obstacle[0] && x < obstacle[0] + obstacle[2] &&
-                    y + 40 > obstacle[1] && y < obstacle[1] + obstacle[3]) {
-                    gameOver = true; // Fim de jogo se colidir com um obstáculo
+                if (x + 40 > obstacle[0] && x < obstacle[0] + 50 &&
+                    y + 40 > obstacle[1] && y < obstacle[1] + 50) {
+                    life--; // Perde uma vida ao colidir
+                    if (life <= 0) {
+                        gameOver = true; // Fim de jogo se a vida acabar
+                    }
                 }
             }
 
@@ -151,6 +179,10 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
             if (x + 40 > finishLine && y + 40 > 300) {
                 gameOver = true; // Fim de jogo ao atingir a linha de chegada
             }
+
+            // Atualizar tempo e pontos
+            time++;
+            score += 1;
 
             repaint();
 
