@@ -97,8 +97,8 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
         // Desenhar tempo e pontos no canto superior esquerdo
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Tempo: " + time, 10, 30);
-        g.drawString("Pontos: " + score, 10, 60);
+        g.drawString("Tempo: " + time, 10, 30); // Tempo na posição (10, 30)
+        g.drawString("Pontos: " + score, 10, 60); // Pontos na posição (10, 60)
 
         // Desenhar a vida no canto superior direito
         if (lifeImage != null) {
