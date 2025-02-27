@@ -47,7 +47,6 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
             lifeImage = ImageIO.read(new File("vida.png")); // Imagem da vida
         } catch (IOException e) {
             e.printStackTrace();
-            
         }
     }
 
@@ -98,8 +97,8 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
         // Desenhar tempo e pontos no canto superior esquerdo
         g.setColor(Color.WHITE);
         g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Tempo: " + time, 10, 60);
-        g.drawString("Pontos: " + score, 10, 50);
+        g.drawString("Tempo: " + time, 10, 30);
+        g.drawString("Pontos: " + score, 10, 60);
 
         // Desenhar a vida no canto superior direito
         if (lifeImage != null) {
@@ -112,7 +111,11 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
         if (gameOver) {
             g.setColor(Color.WHITE);
             g.setFont(new Font("Arial", Font.BOLD, 30));
-            g.drawString("Você venceu!", 300, 200);
+            if (x + 40 > finishLine && y + 40 > 300) {
+                g.drawString("Você venceu!", 300, 200); // Mensagem de vitória
+            } else {
+                g.drawString("Game Over!", 300, 200); // Mensagem de derrota
+            }
         }
     }
 
@@ -168,10 +171,7 @@ public class SonicGame extends JPanel implements KeyListener, Runnable {
             for (int[] obstacle : obstacles) {
                 if (x + 40 > obstacle[0] && x < obstacle[0] + 50 &&
                     y + 40 > obstacle[1] && y < obstacle[1] + 50) {
-                    life--; // Perde uma vida ao colidir
-                    if (life <= 0) {
-                        gameOver = true; // Fim de jogo se a vida acabar
-                    }
+                    gameOver = true; // Fim de jogo imediato ao colidir com um obstáculo
                 }
             }
 
